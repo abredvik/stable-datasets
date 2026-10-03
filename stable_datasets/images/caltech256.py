@@ -36,7 +36,7 @@ class Caltech256(BaseDatasetBuilder):
                     publisher={CaltechDATA},
                     author={Griffin, Gregory and Holub, Alex and Perona, Pietro},
                     year={2022},
-                    month=apr}""",
+                    month={apr}}""",
         license="Creative Commons Attribution 4.0 International",
     )
 
