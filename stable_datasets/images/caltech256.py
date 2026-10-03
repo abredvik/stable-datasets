@@ -1,7 +1,11 @@
+import io
 import tarfile
 from pathlib import Path
 
-from stable_datasets.schema import ClassLabel, DatasetInfo, DatasetSource, DownloadInfo, Features, Image, Version
+from PIL import Image as PILImage
+
+from stable_datasets.schema import ClassLabel, DatasetInfo, DatasetSource, DownloadInfo, Features, Version
+from stable_datasets.schema import Image as ImageFeature
 from stable_datasets.utils import BaseDatasetBuilder
 
 
@@ -11,7 +15,8 @@ class Caltech256(BaseDatasetBuilder):
     A collection of 30,607 training images with 256 categories and one additional clutter
     category (for testing background rejection) created by Griffin, Holub, and Perona (2022).
     Each category has a minimum of 80 images. There are 30,185 RGB and 422 grayscale images,
-    all of which have inconsistent shape.
+    all of which have been converted to contain 3 color channels, but the image sizes
+    remain inconsistent.
     """
 
     VERSION = Version("1.0.0")
@@ -40,7 +45,7 @@ class Caltech256(BaseDatasetBuilder):
         return DatasetInfo(
             features=Features(
                 {
-                    "image": Image(),
+                    "image": ImageFeature(),
                     "label": ClassLabel(names=self._labels()),
                 }
             ),
@@ -63,13 +68,18 @@ class Caltech256(BaseDatasetBuilder):
                 # get label from path (e.g. "001.ak47/001_0001.jpg")
                 label = path.parent.suffix[1:]
 
-                # read image
+                # read image bytes
                 with tar.extractfile(member) as f:
-                    image = f.read()
+                    image_bytes = f.read()
+
+                # ensure all images are RGB (lazy loading, only decodes if necessary)
+                pil_image = PILImage.open(io.BytesIO(image_bytes))
+                if pil_image.mode != "RGB":
+                    image_bytes = ImageFeature().encode(pil_image.convert("RGB"))
 
                 # yield training example, using path as key for traceability
                 key = str(path.relative_to(path.parents[1]))
-                yield key, {"image": image, "label": label}
+                yield key, {"image": image_bytes, "label": label}
 
     @staticmethod
     def _labels():

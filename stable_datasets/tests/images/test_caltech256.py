@@ -23,12 +23,13 @@ def test_caltech256_dataset():
         # Validate image type
         image = sample["image"]
         assert isinstance(image, Image.Image), f"Image should be a PIL image, got {type(image)}."
-        assert image.mode in {"RGB", "L"}
+        assert image.mode == "RGB", f"Image should have mode RGB, but got {image.mode}"
 
         # Convert to numpy for basic sanity checks
         image_np = np.asarray(image)
         assert image_np.dtype == np.uint8, f"Image dtype should be uint8, got {image_np.dtype}."
-        assert image_np.ndim in {2, 3}
+        assert image_np.ndim == 3, f"Image should have 3 dimensions (H, W, C), got shape {image_np.shape}"
+        assert image_np.shape[2] == 3, f"Image should have 3 channels (RGB), got {image_np.shape[2]} channels"
 
         # Validate label type and range
         label = sample["label"]
