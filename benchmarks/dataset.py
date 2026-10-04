@@ -118,6 +118,7 @@ DATASET_CONFIGS: dict[str, DatasetConfig] = {
     # RGB datasets (3-channel, ImageNet stats unless overridden)
     "beans": _rgb("beans", "Beans", 3, include_in_results=False),
     "awa2": _rgb("awa2", "AWA2", 50),
+    "caltech256": _rgb("caltech256", "Caltech-256", 257, builder_name="Caltech256"),
     "cifar10": _rgb("cifar10", "CIFAR-10", 10, mean=[0.4914, 0.4822, 0.4465], std=[0.247, 0.2435, 0.2616]),
     "cifar100": _rgb("cifar100", "CIFAR-100", 100, mean=[0.5071, 0.4867, 0.4408], std=[0.2675, 0.2565, 0.2761]),
     "country211": _rgb("country211", "Country-211", 211),
