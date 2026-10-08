@@ -1,4 +1,6 @@
+import gzip
 import io
+import shutil
 import tarfile
 import zipfile
 from pathlib import Path
@@ -121,11 +123,25 @@ class SUN397(BaseDatasetBuilder):
         if download_dir is None:
             download_dir = _default_dest_folder()
 
+        # bulk download the files
         asset_keys = list(assets.keys())
         downloaded_paths = bulk_download([assets[key] for key in asset_keys], dest_folder=download_dir)
         key_to_path = dict(zip(asset_keys, downloaded_paths))
-        archive_path = key_to_path["archive"]
-        partitions_path = key_to_path["partitions"]
+        compressed_archive_path = Path(key_to_path["archive"])
+        partitions_path = Path(key_to_path["partitions"])
+
+        # uncompress the .tar.gz to a .tar file for quicker file access
+        # file size only increases marginally (<1GB)
+        archive_path = compressed_archive_path.with_name("SUN397.tar")
+        if not archive_path.exists():
+            with gzip.open(compressed_archive_path, "rb") as f_in:
+                with open(archive_path, "wb") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+
+            # delete the original .tar.gz file and replace with a dummy file
+            # to prevent re-downloading
+            compressed_archive_path.unlink()
+            compressed_archive_path.touch()
 
         # initialize return value
         config_name = self.config.name
@@ -178,17 +194,11 @@ class SUN397(BaseDatasetBuilder):
                     partition_images = {f"SUN397{line.decode().strip()}" for line in partf.readlines()}
 
         # get the image files
-        with tarfile.open(archive_path, "r:gz") as tar:  # TODO: make this faster somehow
+        with tarfile.open(archive_path, "r") as tar:
             # create tar member generator
             if partition_images:
                 # only gets specified images
-                members = (
-                    member
-                    for member in tar
-                    if member.isfile() and member.name in partition_images
-                    # tar.getmember(f"SUN397/{img_path.decode().strip()}")
-                    # for img_path in partition_images
-                )
+                members = (member for member in tar if member.isfile() and member.name in partition_images)
             else:
                 # gets all available image files
                 members = (member for member in tar if member.isfile() and Path(member.name).suffix == ".jpg")
