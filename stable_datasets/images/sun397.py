@@ -25,17 +25,25 @@ class SUN397(BaseDatasetBuilder):
     """
     SUN-397
 
-    The original dataset paper created 10 separate partitions, each with 50 training images and 50 testing
-    images per class. All ten partitions are included here, including an additional "all" partition that
-    includes all available images as one training set for SSL pipelines.
+    SUN-397 is a scene recognition dataset containing 108,754 images across 397 scene
+    categories. The original dataset provides ten predefined train/test partitions,
+    each containing 50 training images and 50 testing images per class. All ten
+    partitions are included in this implementation. An additional `all` configuration
+    provides all available images as a single training split, intended for self-
+    supervised learning (SSL) pipelines that do not require predefined train/test
+    partitions.
 
-    Original download link provided at https://3dvision.princeton.edu/projects/2010/SUN/ is no longer
-    functional, so a third party upload needed to be used. The md5 checksum of the third party
-    download matched the original checksum provided on the official dataset webpage, so it should be
-    trustworthy.
+    The original download link provided on the official SUN dataset website
+    (https://3dvision.princeton.edu/projects/2010/SUN/) is no longer functional.
+    Therefore, a third-party upload was used to obtain the dataset. To verify the
+    integrity of the downloaded archive, its MD5 checksum was compared against the
+    original checksum published on the official dataset website. The checksums matched,
+    indicating that the downloaded archive matches the original distribution.
     """
 
     VERSION = Version("1.0.0")
+
+    DEFAULT_CONFIG_NAME = "all"
 
     BUILDER_CONFIGS = [
         BuilderConfig(name="all", description="All SUN-397 images as one training set (no test split)"),
@@ -70,7 +78,6 @@ class SUN397(BaseDatasetBuilder):
             name="partition_10", description="Partition (10) with 50 training and 50 testing images per class"
         ),
     ]
-    DEFAULT_CONFIG_NAME = "all"
 
     SOURCE = DatasetSource(
         homepage="https://3dvision.princeton.edu/projects/2010/SUN/",
@@ -89,7 +96,7 @@ class SUN397(BaseDatasetBuilder):
         citation="""@inproceedings{5539970,
                     title     = {SUN database: Large-scale scene recognition from abbey to zoo},
                     author    = {Xiao, Jianxiong and Hays, James and Ehinger, Krista A. and Oliva, Aude and Torralba, Antonio},
-                    year      = 2010,
+                    year      = {2010},
                     booktitle = {2010 IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
                     volume    = {},
                     number    = {},
@@ -173,25 +180,45 @@ class SUN397(BaseDatasetBuilder):
 
         return ret
 
+    def _get_partition_images(self, partitions_path, partition, split):
+        """Generate the set of images in this partition and split"""
+
+        # lowercase inputs
+        partition = partition.lower()
+        split = split.lower()
+
+        # check valid input
+        valid_partitions = {builder_config.name for builder_config in self.BUILDER_CONFIGS}
+        if partition not in valid_partitions:
+            raise ValueError(f"received unknown data partition: {partition}. Must be one of: {valid_partitions}")
+        if split not in ("train", "test"):
+            raise ValueError(f"received unknown split type: {split}")
+
+        # return empty set if no partition
+        if partition == "all":
+            return set()
+
+        # get partition number from "partition_xx"
+        part_num = partition.split("_")[1]
+
+        # get partition file name
+        part_file = f"{'Training' if split == 'train' else 'Testing'}_{part_num}.txt"
+
+        # open partition file and get image list
+        with zipfile.ZipFile(partitions_path, "r") as zipf:
+            with zipf.open(part_file, "r") as partf:
+                partition_images = {f"SUN397{line.decode().strip()}" for line in partf.readlines()}
+        return partition_images
+
     def _generate_examples(self, archive_path, partitions_path, partition, split):
         """Generate examples from the .tar.gz archive."""
 
         # get image partition (if applicable)
-        partition_images = []
-        if partition != "all":
-            # get partition number from "partition_xx"
-            part_num = partition.split("_")[1]
-
-            # get partition file name
-            if split not in ("train", "test"):
-                raise ValueError(f"received unknown split type: {split}")
-
-            part_file = f"{'Training' if split == 'train' else 'Testing'}_{part_num}.txt"
-
-            # open partition file and get image list
-            with zipfile.ZipFile(partitions_path, "r") as zipf:
-                with zipf.open(part_file, "r") as partf:
-                    partition_images = {f"SUN397{line.decode().strip()}" for line in partf.readlines()}
+        partition_images = self._get_partition_images(
+            partitions_path=partitions_path,
+            partition=partition,
+            split=split,
+        )
 
         # get the image files
         with tarfile.open(archive_path, "r") as tar:
