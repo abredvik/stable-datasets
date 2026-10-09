@@ -12,6 +12,9 @@ params:
   cifar100:
     batch_size: 128
     max_epochs: 200
+  sun397:
+    batch_size: 128
+    max_epochs: 150
   svhn:
     batch_size: 128
     max_epochs: 150

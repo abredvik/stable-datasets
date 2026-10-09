@@ -144,6 +144,15 @@ DATASET_CONFIGS: dict[str, DatasetConfig] = {
     "imagenette": _rgb("imagenette", "Imagenette", 10),
     "rockpaperscissor": _rgb("rockpaperscissor", "Rock-Paper-Scissors", 3),
     "stl10": _rgb("stl10", "STL-10", 10, mean=[0.4467, 0.4398, 0.4066], std=[0.2603, 0.2566, 0.2713]),
+    "sun397": _rgb(
+        "sun397",
+        "SUN-397",
+        397,
+        mean=[0.4839, 0.4641, 0.4252],
+        std=[0.2556, 0.2524, 0.2747],
+        builder_name="SUN397",
+        builder_kwargs={"config_name": "partition_01"},
+    ),
     "svhn": _rgb("svhn", "SVHN", 10, mean=[0.4377, 0.4438, 0.4728], std=[0.1980, 0.2010, 0.1970]),
     "tinyimagenet": _rgb("tinyimagenet", "Tiny ImageNet", 200, builder_name="TinyImagenet", include_in_results=False),
     "cars196": _rgb(
