@@ -1,6 +1,4 @@
-import gzip
 import io
-import shutil
 import tarfile
 import zipfile
 from pathlib import Path
@@ -134,21 +132,8 @@ class SUN397(BaseDatasetBuilder):
         asset_keys = list(assets.keys())
         downloaded_paths = bulk_download([assets[key] for key in asset_keys], dest_folder=download_dir)
         key_to_path = dict(zip(asset_keys, downloaded_paths))
-        compressed_archive_path = Path(key_to_path["archive"])
-        partitions_path = Path(key_to_path["partitions"])
-
-        # uncompress the .tar.gz to a .tar file for quicker file access
-        # file size only increases marginally (<1GB)
-        archive_path = compressed_archive_path.with_name("SUN397.tar")
-        if not archive_path.exists():
-            with gzip.open(compressed_archive_path, "rb") as f_in:
-                with open(archive_path, "wb") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-
-            # delete the original .tar.gz file and replace with a dummy file
-            # to prevent re-downloading
-            compressed_archive_path.unlink()
-            compressed_archive_path.touch()
+        archive_path = key_to_path["archive"]
+        partitions_path = key_to_path["partitions"]
 
         # initialize return value
         config_name = self.config.name
@@ -221,7 +206,7 @@ class SUN397(BaseDatasetBuilder):
         )
 
         # get the image files
-        with tarfile.open(archive_path, "r") as tar:
+        with tarfile.open(archive_path, "r:gz") as tar:
             # create tar member generator
             if partition_images:
                 # only gets specified images
