@@ -76,11 +76,10 @@ Citation
 
 .. code-block:: bibtex
 
-    @misc{griffin_holub_perona_2022,
-        title = {Caltech 256},
-        DOI = {10.22002/D1.20087},
-        publisher = {CaltechDATA},
+    @article{griffin_holub_perona_2007,
+        title = {Caltech-256 Object Category Dataset},
+        publisher = {California Institute of Technology},
         author = {Griffin, Gregory and Holub, Alex and Perona, Pietro},
-        year = {2022},
-        month = {apr}
+        year = {2007},
+        month = {mar}
     }
