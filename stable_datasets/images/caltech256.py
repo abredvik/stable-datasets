@@ -13,7 +13,7 @@ class Caltech256(BaseDatasetBuilder):
     """
     Caltech-256
     A collection of 30,607 training images with 256 categories and one additional clutter
-    category (for testing background rejection) created by Griffin, Holub, and Perona (2022).
+    category (for testing background rejection) created by Griffin, Holub, and Perona (2007).
     Each category has a minimum of 80 images. There are 30,185 RGB and 422 grayscale images,
     all of which have been converted to contain 3 color channels, but the image sizes
     remain inconsistent.
@@ -30,13 +30,12 @@ class Caltech256(BaseDatasetBuilder):
                 filename="256_ObjectCategories.tar",
             ),
         },
-        citation="""@misc{griffin_holub_perona_2022,
-                    title={Caltech 256},
-                    DOI={10.22002/D1.20087},
-                    publisher={CaltechDATA},
-                    author={Griffin, Gregory and Holub, Alex and Perona, Pietro},
-                    year={2022},
-                    month={apr}}""",
+        citation="""@article{griffin_holub_perona_2007,
+                    title     = {Caltech-256 Object Category Dataset},
+                    publisher = {California Institute of Technology},
+                    author    = {Griffin, Gregory and Holub, Alex and Perona, Pietro},
+                    year      = {2007},
+                    month     = {mar}}""",
         license="Creative Commons Attribution 4.0 International",
     )
 
