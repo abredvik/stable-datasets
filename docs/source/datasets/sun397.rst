@@ -5,7 +5,7 @@ SUN-397
 
    <p style="display: flex; gap: 10px;">
    <img src="https://img.shields.io/badge/Task-Image%20Classification-blue" alt="Task: Image Classification">
-   <img src="https://img.shields.io/badge/Classes-397-green" alt="Classes: 257">
+   <img src="https://img.shields.io/badge/Classes-397-green" alt="Classes: 397">
    <img src="https://img.shields.io/badge/Size-HxWx3-orange" alt="Image Size: HxWx3">
    </p>
 

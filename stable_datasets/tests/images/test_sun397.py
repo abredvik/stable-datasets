@@ -1,7 +1,11 @@
 import numpy as np
+import pytest
 from PIL import Image
 
 from stable_datasets.images import SUN397
+
+
+pytestmark = pytest.mark.large
 
 
 def test_sun397_dataset():
