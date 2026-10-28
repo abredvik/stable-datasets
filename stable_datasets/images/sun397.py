@@ -165,6 +165,13 @@ class SUN397(BaseDatasetBuilder):
 
         return ret
 
+    def _candidate_splits(self) -> list:
+        """Custom _candidate_splits to ensure proper cache lookup"""
+        if self.config.name == "all":
+            return [Split.TRAIN]
+
+        return [Split.TRAIN, Split.TEST]
+
     def _get_partition_images(self, partitions_path, partition, split):
         """Generate the set of images in this partition and split"""
 
